@@ -1,161 +1,96 @@
-import { useState, useCallback } from 'react';
-import { ImageUpload } from '@/components/ImageUpload';
-import { AlgorithmPanel } from '@/components/AlgorithmPanel';
-import { ImageDisplay } from '@/components/ImageDisplay';
-import { TutorialList } from '@/components/TutorialList';
-import { InteractiveTutorial } from '@/components/InteractiveTutorial';
-import { algorithms } from '@/data/algorithms';
-import { applyAlgorithm } from '@/lib/opencv';
-import type { Algorithm, ProcessingResult } from '@/types/cv';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
+import { Navigation } from '@/components/Navigation';
+import { HomePage } from '@/pages/HomePage';
+import { TutorialsPage } from '@/pages/TutorialsPage';
+import { TutorialPage } from '@/pages/TutorialPage';
+import { InfoPage } from '@/pages/InfoPage';
+import { AlgorithmDetailPage } from '@/pages/AlgorithmDetailPage';
+import { getTutorialById } from '@/data/tutorials';
+import { getAlgorithmInfoById } from '@/data/algorithm-info';
 import type { Tutorial } from '@/types/tutorial';
-import { Brain, Camera, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import type { AlgorithmInfo } from '@/data/algorithm-info';
+
+// Wrapper komponenta za TutorialPage sa URL parametrima
+const TutorialPageWrapper = () => {
+  const { tutorialId } = useParams<{ tutorialId: string }>();
+  const navigate = useNavigate();
+  const tutorial = tutorialId ? getTutorialById(tutorialId) : null;
+  
+  if (!tutorial) {
+    return <Navigate to="/tutorials" replace />;
+  }
+
+  const handleBack = () => {
+    navigate('/tutorials');
+  };
+
+  return <TutorialPage tutorial={tutorial} onBack={handleBack} />;
+};
+
+// Wrapper komponenta za AlgorithmDetailPage sa URL parametrima
+const AlgorithmDetailPageWrapper = () => {
+  const { algorithmId } = useParams<{ algorithmId: string }>();
+  const navigate = useNavigate();
+  const algorithm = algorithmId ? getAlgorithmInfoById(algorithmId) : null;
+  
+  if (!algorithm) {
+    return <Navigate to="/info" replace />;
+  }
+
+  const handleBack = () => {
+    navigate('/info');
+  };
+
+  return <AlgorithmDetailPage algorithm={algorithm} onBack={handleBack} />;
+};
 
 function App() {
-  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm | null>(null);
-  const [processingResult, setProcessingResult] = useState<ProcessingResult | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [currentView, setCurrentView] = useState<'main' | 'tutorials' | 'tutorial'>('main');
-  const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | null>(null);
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
 
-  const handleImageSelect = useCallback((image: HTMLImageElement) => {
-    setOriginalImage(image);
-    setProcessingResult(null);
-  }, []);
+function AppContent() {
+  const navigate = useNavigate();
+  
+  const handleTutorialSelect = (tutorial: Tutorial) => {
+    navigate(`/tutorials/${tutorial.id}`);
+  };
 
-  const handleAlgorithmSelect = useCallback((algorithm: Algorithm) => {
-    setSelectedAlgorithm(algorithm);
-  }, []);
-
-  const handleApplyAlgorithm = useCallback(async (
-    algorithmId: string,
-    parameters: Record<string, number | string>
-  ) => {
-    if (!originalImage) return;
-
-    setIsProcessing(true);
-    try {
-      const { result, processingTime } = await applyAlgorithm(
-        originalImage,
-        algorithmId,
-        parameters
-      );
-
-      const algorithm = algorithms.find(alg => alg.id === algorithmId);
-      if (!algorithm) throw new Error('Algorithm not found');
-
-      const newResult: ProcessingResult = {
-        originalImage: originalImage.src,
-        processedImage: result,
-        processingTime,
-        algorithm,
-        parameters
-      };
-
-      setProcessingResult(newResult);
-    } catch (error) {
-      console.error('Error applying algorithm:', error);
-      alert('Greška pri primeni algoritma. Molimo pokušajte ponovo.');
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [originalImage]);
-
-  const handleTutorialSelect = useCallback((tutorial: Tutorial) => {
-    setSelectedTutorial(tutorial);
-    setCurrentView('tutorial');
-  }, []);
-
-  const handleBackToTutorials = useCallback(() => {
-    setCurrentView('tutorials');
-    setSelectedTutorial(null);
-  }, []);
-
-  const handleBackToMain = useCallback(() => {
-    setCurrentView('main');
-    setSelectedTutorial(null);
-  }, []);
+  const handleAlgorithmSelect = (algorithm: AlgorithmInfo) => {
+    navigate(`/info/${algorithm.id}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+      <Navigation />
+      
+      <main className="container mx-auto px-4 py-8">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/tutorials" element={<TutorialsPage onTutorialSelect={handleTutorialSelect} />} />
+          <Route path="/tutorials/:tutorialId" element={<TutorialPageWrapper />} />
+          <Route path="/info" element={<InfoPage onAlgorithmSelect={handleAlgorithmSelect} />} />
+          <Route path="/info/:algorithmId" element={<AlgorithmDetailPageWrapper />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Brain className="h-8 w-8 text-primary" />
-                <h1 className="text-2xl font-bold">Computer Vision Lab</h1>
-              </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>© 2024 Computer Vision Lab</span>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Camera className="h-4 w-4" />
-                Interaktivna platforma za kompjuterski vid
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentView(currentView === 'tutorials' ? 'main' : 'tutorials')}
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                {currentView === 'tutorials' ? 'Glavna strana' : 'Tutorijali'}
-              </Button>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <span>Interaktivna platforma za kompjuterski vid</span>
             </div>
           </div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {currentView === 'main' && (
-          <div className="space-y-8">
-            {/* Top Section - Image Upload + Display (100% width) */}
-            <div className="space-y-8">
-              <ImageUpload onImageSelect={handleImageSelect} />
-              <ImageDisplay
-                originalImage={originalImage}
-                processingResult={processingResult}
-                isProcessing={isProcessing}
-              />
-            </div>
-
-            {/* Bottom Section - Algorithm Panel (100% width, centered) */}
-            <div className="max-w-4xl mx-auto">
-              <AlgorithmPanel
-                onAlgorithmSelect={handleAlgorithmSelect}
-                onApplyAlgorithm={handleApplyAlgorithm}
-                selectedAlgorithm={selectedAlgorithm}
-                isProcessing={isProcessing}
-              />
-            </div>
-          </div>
-        )}
-
-        {currentView === 'tutorials' && (
-          <TutorialList onTutorialSelect={handleTutorialSelect} />
-        )}
-
-        {currentView === 'tutorial' && selectedTutorial && (
-          <InteractiveTutorial 
-            tutorial={selectedTutorial} 
-            onBack={handleBackToTutorials} 
-          />
-        )}
-
-        {/* Footer */}
-        <footer className="mt-16 pt-8 border-t">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>
-              Computer Vision Lab - Interaktivna platforma za učenje algoritama kompjuterskog vida
-            </p>
-            <p className="mt-2">
-              Koristi OpenCV.js, React i shadcn/ui komponente
-            </p>
-          </div>
-        </footer>
-      </main>
+      </footer>
     </div>
   );
 }

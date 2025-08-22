@@ -6,6 +6,10 @@ import { ArrowLeft, ArrowRight, Play, Check, Info, Zap, Eye, FlaskConical } from
 import type { Tutorial, TutorialStep } from '@/types/tutorial';
 import { ImageDisplay } from './ImageDisplay';
 import { AlgorithmPanel } from './AlgorithmPanel';
+import { TutorialParameters } from './TutorialParameters';
+import { applyAlgorithm } from '@/lib/opencv';
+import { algorithms } from '@/data/algorithms';
+import type { ProcessingResult } from '@/types/cv';
 
 interface InteractiveTutorialProps {
   tutorial: Tutorial;
@@ -29,8 +33,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [currentImage, setCurrentImage] = useState<HTMLImageElement | null>(null);
-  const [processingResult, setProcessingResult] = useState<any>(null);
+  const [processingResult, setProcessingResult] = useState<ProcessingResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentAlgorithm, setCurrentAlgorithm] = useState<any>(null);
 
   const currentStep = tutorial.steps[currentStepIndex];
   const progress = (completedSteps.length / tutorial.steps.length) * 100;
@@ -62,22 +67,45 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   }, [currentStepIndex]);
 
   const handleStepAction = useCallback(async () => {
-    if (currentStep.actionType === 'apply' && currentStep.parameters) {
-      setIsProcessing(true);
-      try {
-        // Ovde bi se pozvala OpenCV funkcija
-        // const result = await applyAlgorithm(currentImage, tutorial.algorithmId, currentStep.parameters);
-        // setProcessingResult(result);
-        handleStepComplete();
-      } catch (error) {
-        console.error('Error applying algorithm:', error);
-      } finally {
-        setIsProcessing(false);
-      }
-    } else if (currentStep.actionType === 'info') {
+    if (currentStep.actionType === 'info') {
       handleStepComplete();
     }
-  }, [currentStep, currentImage, tutorial.algorithmId, handleStepComplete]);
+  }, [currentStep, handleStepComplete]);
+
+  const handleApplyAlgorithm = useCallback(async (parameters: Record<string, any>) => {
+    if (!currentImage) return;
+    
+    setIsProcessing(true);
+    try {
+      // Pronađi algoritam
+      const algorithm = algorithms.find(alg => alg.id === tutorial.algorithmId);
+      if (!algorithm) {
+        throw new Error('Algorithm not found');
+      }
+      
+      setCurrentAlgorithm(algorithm);
+      
+      // Primeni algoritam
+      const result = await applyAlgorithm(currentImage, tutorial.algorithmId, parameters);
+      
+      // Kreiraj ProcessingResult
+      const processingResult: ProcessingResult = {
+        originalImage: currentImage.src,
+        processedImage: result.result,
+        processingTime: result.processingTime,
+        algorithm: algorithm,
+        parameters: parameters
+      };
+      
+      setProcessingResult(processingResult);
+      handleStepComplete();
+    } catch (error) {
+      console.error('Error applying algorithm:', error);
+      alert('Greška pri primeni algoritma. Molimo pokušajte ponovo.');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [currentImage, tutorial.algorithmId, handleStepComplete]);
 
   return (
     <div className="space-y-6">
@@ -152,24 +180,24 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               </div>
 
               {/* Action Button */}
-              {currentStep.actionText && (
+              {currentStep.actionText && currentStep.actionType === 'info' && (
                 <Button 
                   className="w-full" 
                   onClick={handleStepAction}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      Obrađujem...
-                    </>
-                  ) : (
-                    <>
-                      {getStepIcon(currentStep.actionType)}
-                      <span className="ml-2">{currentStep.actionText}</span>
-                    </>
-                  )}
+                  {getStepIcon(currentStep.actionType)}
+                  <span className="ml-2">{currentStep.actionText}</span>
                 </Button>
+              )}
+
+              {/* Parameters Panel for apply steps */}
+              {currentStep.actionType === 'apply' && (
+                <TutorialParameters
+                  algorithmId={tutorial.algorithmId}
+                  onApply={handleApplyAlgorithm}
+                  isProcessing={isProcessing}
+                />
               )}
 
               {/* Navigation */}
@@ -216,11 +244,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AlgorithmPanel
-              onAlgorithmSelect={() => {}}
-              onApplyAlgorithm={() => {}}
-              selectedAlgorithm={null}
-              isProcessing={false}
+            <TutorialParameters
+              algorithmId={tutorial.algorithmId}
+              onApply={handleApplyAlgorithm}
+              isProcessing={isProcessing}
             />
           </CardContent>
         </Card>
