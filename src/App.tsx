@@ -2,16 +2,22 @@ import { useState, useCallback } from 'react';
 import { ImageUpload } from '@/components/ImageUpload';
 import { AlgorithmPanel } from '@/components/AlgorithmPanel';
 import { ImageDisplay } from '@/components/ImageDisplay';
+import { TutorialList } from '@/components/TutorialList';
+import { InteractiveTutorial } from '@/components/InteractiveTutorial';
 import { algorithms } from '@/data/algorithms';
 import { applyAlgorithm } from '@/lib/opencv';
 import type { Algorithm, ProcessingResult } from '@/types/cv';
-import { Brain, Camera } from 'lucide-react';
+import type { Tutorial } from '@/types/tutorial';
+import { Brain, Camera, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 function App() {
   const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<Algorithm | null>(null);
   const [processingResult, setProcessingResult] = useState<ProcessingResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentView, setCurrentView] = useState<'main' | 'tutorials' | 'tutorial'>('main');
+  const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | null>(null);
 
   const handleImageSelect = useCallback((image: HTMLImageElement) => {
     setOriginalImage(image);
@@ -56,6 +62,21 @@ function App() {
     }
   }, [originalImage]);
 
+  const handleTutorialSelect = useCallback((tutorial: Tutorial) => {
+    setSelectedTutorial(tutorial);
+    setCurrentView('tutorial');
+  }, []);
+
+  const handleBackToTutorials = useCallback(() => {
+    setCurrentView('tutorials');
+    setSelectedTutorial(null);
+  }, []);
+
+  const handleBackToMain = useCallback(() => {
+    setCurrentView('main');
+    setSelectedTutorial(null);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -68,9 +89,19 @@ function App() {
                 <h1 className="text-2xl font-bold">Computer Vision Lab</h1>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Camera className="h-4 w-4" />
-              Interaktivna platforma za kompjuterski vid
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Camera className="h-4 w-4" />
+                Interaktivna platforma za kompjuterski vid
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentView(currentView === 'tutorials' ? 'main' : 'tutorials')}
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                {currentView === 'tutorials' ? 'Glavna strana' : 'Tutorijali'}
+              </Button>
             </div>
           </div>
         </div>
@@ -78,27 +109,40 @@ function App() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Top Section - Image Upload + Display (100% width) */}
+        {currentView === 'main' && (
           <div className="space-y-8">
-            <ImageUpload onImageSelect={handleImageSelect} />
-            <ImageDisplay
-              originalImage={originalImage}
-              processingResult={processingResult}
-              isProcessing={isProcessing}
-            />
-          </div>
+            {/* Top Section - Image Upload + Display (100% width) */}
+            <div className="space-y-8">
+              <ImageUpload onImageSelect={handleImageSelect} />
+              <ImageDisplay
+                originalImage={originalImage}
+                processingResult={processingResult}
+                isProcessing={isProcessing}
+              />
+            </div>
 
-          {/* Bottom Section - Algorithm Panel (100% width, centered) */}
-          <div className="max-w-4xl mx-auto">
-            <AlgorithmPanel
-              onAlgorithmSelect={handleAlgorithmSelect}
-              onApplyAlgorithm={handleApplyAlgorithm}
-              selectedAlgorithm={selectedAlgorithm}
-              isProcessing={isProcessing}
-            />
+            {/* Bottom Section - Algorithm Panel (100% width, centered) */}
+            <div className="max-w-4xl mx-auto">
+              <AlgorithmPanel
+                onAlgorithmSelect={handleAlgorithmSelect}
+                onApplyAlgorithm={handleApplyAlgorithm}
+                selectedAlgorithm={selectedAlgorithm}
+                isProcessing={isProcessing}
+              />
+            </div>
           </div>
-        </div>
+        )}
+
+        {currentView === 'tutorials' && (
+          <TutorialList onTutorialSelect={handleTutorialSelect} />
+        )}
+
+        {currentView === 'tutorial' && selectedTutorial && (
+          <InteractiveTutorial 
+            tutorial={selectedTutorial} 
+            onBack={handleBackToTutorials} 
+          />
+        )}
 
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t">
