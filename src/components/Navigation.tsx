@@ -16,7 +16,7 @@ export const Navigation: React.FC = () => {
             </Link>
             <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
               <Camera className="h-4 w-4" />
-              Interaktivna platforma za kompjuterski vid
+              Istraživačkova laboratorija
             </div>
           </div>
           

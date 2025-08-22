@@ -12,10 +12,20 @@ interface ImageUploadProps {
 export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Detekcija mobilnih uređaja
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   const handleFileSelect = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) {
       alert('Molimo odaberite sliku.');
+      return;
+    }
+
+    // Proveri veličinu fajla (maksimalno 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('Slika je prevelika. Maksimalna veličina je 10MB.');
       return;
     }
 
@@ -27,7 +37,15 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
         onImageSelect(img);
         setIsLoading(false);
       };
+      img.onerror = () => {
+        alert('Greška pri učitavanju slike. Molimo pokušajte sa drugom slikom.');
+        setIsLoading(false);
+      };
       img.src = e.target?.result as string;
+    };
+    reader.onerror = () => {
+      alert('Greška pri čitanju fajla. Molimo pokušajte ponovo.');
+      setIsLoading(false);
     };
     reader.readAsDataURL(file);
   }, [onImageSelect]);
@@ -104,12 +122,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
             Učitaj sliku
           </CardTitle>
           <CardDescription>
-            Prevucite sliku ovde ili kliknite za odabir fajla
+            {isMobile ? 'Kliknite za odabir slike sa telefona' : 'Prevucite sliku ovde ili kliknite za odabir fajla'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-colors ${
               isDragOver
                 ? 'border-primary bg-primary/5'
                 : 'border-muted-foreground/25 hover:border-primary/50'
@@ -118,22 +136,24 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground mb-4">
-              Prevucite sliku ovde ili kliknite za odabir
+            <Upload className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground mb-3 sm:mb-4">
+              <span className="hidden sm:inline">Prevucite sliku ovde ili </span>kliknite za odabir
             </p>
             <Button
               variant="outline"
               onClick={() => document.getElementById('file-input')?.click()}
               disabled={isLoading}
+              className="h-10 sm:h-9 px-4 sm:px-3"
             >
               <ImageIcon className="h-4 w-4 mr-2" />
-              Odaberi fajl
+              {isMobile ? 'Odaberi sliku' : 'Odaberi fajl'}
             </Button>
             <input
               id="file-input"
               type="file"
               accept="image/*"
+              capture="environment"
               onChange={handleFileInput}
               className="hidden"
             />
@@ -142,13 +162,21 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={handleCameraCapture}
+              onClick={() => document.getElementById('camera-input')?.click()}
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 h-10 sm:h-9"
             >
               <Camera className="h-4 w-4 mr-2" />
               Kamera
             </Button>
+            <input
+              id="camera-input"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileInput}
+              className="hidden"
+            />
           </div>
         </CardContent>
       </Card>

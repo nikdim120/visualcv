@@ -41,7 +41,7 @@ export const algorithmInfo: AlgorithmInfo[] = [
           {
             title: 'Zašto Gaussian distribucija?',
             content: 'Gaussian distribucija je prirodna distribucija koja se javlja u mnogim fizičkim procesima. U kontekstu slika, ona dobro modelira način na koji se svetlost širi i reflektuje od površina.',
-            formula: 'G(x,y) = (1/(2πσ²)) * e^(-(x²+y²)/(2σ²))'
+            formula: 'G(x,y) = \\frac{1}{2\\pi\\sigma^2} \\cdot e^{-\\frac{x^2 + y^2}{2\\sigma^2}}'
           }
         ]
       },
@@ -60,7 +60,7 @@ export const algorithmInfo: AlgorithmInfo[] = [
           {
             title: 'Konvolucija',
             content: 'Svaki piksel u rezultujućoj slici se računa kao ponderisana suma piksela u susedstvu, gde su težine definisane Gaussian kernel-om.',
-            formula: 'I\'[x,y] = Σ(i,j) I[x+i,y+j] * G[i,j]'
+            formula: 'I\'[x,y] = \\sum_{i,j} I[x+i,y+j] \\cdot G[i,j]'
           }
         ]
       },
@@ -179,7 +179,8 @@ grad_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=3)
 
 // Magnitude i smer gradijenta
 magnitude = sqrt(grad_x² + grad_y²)
-direction = atan2(grad_y, grad_x)`
+direction = atan2(grad_y, grad_x)`,
+            formula: '|\\nabla I| = \\sqrt{\\left(\\frac{\\partial I}{\\partial x}\\right)^2 + \\left(\\frac{\\partial I}{\\partial y}\\right)^2}'
           },
           {
             title: '3. Non-maximum suppression',
@@ -309,17 +310,17 @@ def canny_edge_detection(image, low_threshold=50, high_threshold=150):
           {
             title: 'Prostorni faktor',
             content: 'Meri udaljenost između piksela. Pikseli koji su bliže imaju veću težinu.',
-            formula: 'G_σs(||p - q||) = e^(-||p - q||²/(2σs²))'
+            formula: 'G_{\\sigma_s}(\\|p - q\\|) = e^{-\\frac{\\|p - q\\|^2}{2\\sigma_s^2}}'
           },
           {
             title: 'Intenzitetni faktor',
             content: 'Meri razliku u intenzitetu između piksela. Pikseli sa sličnim intenzitetom imaju veću težinu.',
-            formula: 'G_σr(|I(p) - I(q)|) = e^(-|I(p) - I(q)|²/(2σr²))'
+            formula: 'G_{\\sigma_r}(|I(p) - I(q)|) = e^{-\\frac{|I(p) - I(q)|^2}{2\\sigma_r^2}}'
           },
           {
             title: 'Kombinovana težina',
             content: 'Konačna težina je proizvod prostornog i intenzitetnog faktora.',
-            formula: 'w(p,q) = G_σs(||p - q||) * G_σr(|I(p) - I(q)|)'
+            formula: 'w(p,q) = G_{\\sigma_s}(\\|p - q\\|) \\cdot G_{\\sigma_r}(|I(p) - I(q)|)'
           }
         ]
       },
@@ -330,12 +331,12 @@ def canny_edge_detection(image, low_threshold=50, high_threshold=150):
           {
             title: 'Formula',
             content: 'Svaki piksel se zamenjuje ponderisanom sredinom susednih piksela.',
-            formula: 'BF[I]p = (1/Wp) * Σq∈S G_σs(||p - q||) * G_σr(|I(p) - I(q)|) * I(q)'
+            formula: 'BF[I]_p = \\frac{1}{W_p} \\sum_{q \\in S} G_{\\sigma_s}(\\|p - q\\|) \\cdot G_{\\sigma_r}(|I(p) - I(q)|) \\cdot I(q)'
           },
           {
             title: 'Normalizacija',
             content: 'Wp je normalizacioni faktor koji osigurava da suma težina bude 1.',
-            formula: 'Wp = Σq∈S G_σs(||p - q||) * G_σr(|I(p) - I(q)|)'
+            formula: 'W_p = \\sum_{q \\in S} G_{\\sigma_s}(\\|p - q\\|) \\cdot G_{\\sigma_r}(|I(p) - I(q)|)'
           }
         ]
       },
@@ -488,6 +489,7 @@ result = bilateral_filter(image, 9, 75, 75)`
           {
             title: 'Algoritam',
             content: '1. Definiši kernel (npr. 3x3, 5x5) 2. Za svaki piksel, uzmi sve piksele u kernel-u 3. Sortiraj vrednosti 4. Uzmi medijan kao novu vrednost',
+            formula: 'I\'(x,y) = \\text{median}\\{I(x+i,y+j) : (i,j) \\in K\\}',
             code: `def median_blur(image, kernel_size):
     height, width = image.shape
     result = np.zeros_like(image)
@@ -622,12 +624,12 @@ result = median_blur_opencv(image, 5)`
           {
             title: 'Magnitude gradijenta',
             content: 'Magnitude gradijenta se računa kao:',
-            formula: 'G = √(Gx² + Gy²)'
+            formula: 'G = \\sqrt{G_x^2 + G_y^2}'
           },
           {
             title: 'Smer gradijenta',
             content: 'Smer gradijenta se računa kao:',
-            formula: 'θ = atan2(Gy, Gx)'
+            formula: '\\theta = \\arctan\\left(\\frac{G_y}{G_x}\\right)'
           }
         ]
       },
@@ -781,7 +783,7 @@ ksize = 7  # 7x7 kernel (najglatkiji)`
           {
             title: 'Matematička formula',
             content: 'Laplacian se računa kao:',
-            formula: '∇²f = ∂²f/∂x² + ∂²f/∂y²'
+            formula: '\\nabla^2 f = \\frac{\\partial^2 f}{\\partial x^2} + \\frac{\\partial^2 f}{\\partial y^2}'
           }
         ]
       },
@@ -931,12 +933,12 @@ ksize = 5  # 5x5 kernel (glatkiji)`
           {
             title: 'Formula',
             content: 'Erozija slike A sa strukturnim elementom B se definiše kao:',
-            formula: 'A ⊖ B = {z | (B)z ⊆ A}'
+            formula: 'A \\ominus B = \\{z \\mid (B)_z \\subseteq A\\}'
           },
           {
             title: 'Implementacija',
             content: 'Praktično, erozija se implementira kao:',
-            formula: 'Erosion(x,y) = min{I(x+i,y+j) | (i,j) ∈ B}'
+            formula: '\\text{Erosion}(x,y) = \\min\\{I(x+i,y+j) \\mid (i,j) \\in B\\}'
           }
         ]
       },
@@ -1087,12 +1089,12 @@ iterations = 3  # Tri iteracije`
           {
             title: 'Formula',
             content: 'Dilatacija slike A sa strukturnim elementom B se definiše kao:',
-            formula: 'A ⊕ B = {z | (B)z ∩ A ≠ ∅}'
+            formula: 'A \\oplus B = \\{z \\mid (B)_z \\cap A \\neq \\emptyset\\}'
           },
           {
             title: 'Implementacija',
             content: 'Praktično, dilatacija se implementira kao:',
-            formula: 'Dilation(x,y) = max{I(x+i,y+j) | (i,j) ∈ B}'
+            formula: '\\text{Dilation}(x,y) = \\max\\{I(x+i,y+j) \\mid (i,j) \\in B\\}'
           }
         ]
       },
@@ -1243,7 +1245,7 @@ iterations = 3  # Tri iteracije`
           {
             title: 'Formula',
             content: 'Opening slike A sa strukturnim elementom B se definiše kao:',
-            formula: 'A ∘ B = (A ⊖ B) ⊕ B'
+            formula: 'A \\circ B = (A \\ominus B) \\oplus B'
           },
           {
             title: 'Koraci',
@@ -1367,7 +1369,7 @@ kernel_size = 7  # 7x7 kernel`
           {
             title: 'Formula',
             content: 'Closing slike A sa strukturnim elementom B se definiše kao:',
-            formula: 'A • B = (A ⊕ B) ⊖ B'
+            formula: 'A \\bullet B = (A \\oplus B) \\ominus B'
           },
           {
             title: 'Koraci',
@@ -1491,12 +1493,12 @@ kernel_size = 7  # 7x7 kernel`
           {
             title: 'Gradijent struktura',
             content: 'Za svaku tačku (x,y), računamo gradijent strukture:',
-            formula: 'M = Σ[Ix²  IxIy]'
+            formula: 'M = \\sum \\begin{bmatrix} I_x^2 & I_x I_y \\\\ I_x I_y & I_y^2 \\end{bmatrix}'
           },
           {
             title: 'Harris response',
             content: 'Harris response se računa kao:',
-            formula: 'R = det(M) - k * trace(M)²'
+            formula: 'R = \\det(M) - k \\cdot \\text{trace}(M)^2'
           },
           {
             title: 'Detaljnija formula',
@@ -1700,7 +1702,7 @@ k = 0.02  # Manje osetljivosti`
           {
             title: 'Binarizacija',
             content: 'Zatim primenjujemo binarizaciju koristeći lokalni prag:',
-            formula: 'B(x,y) = 255 if I(x,y) > T(x,y), else 0'
+            formula: 'B(x,y) = \\begin{cases} 255 & \\text{if } I(x,y) > T(x,y) \\\\ 0 & \\text{otherwise} \\end{cases}'
           }
         ]
       },

@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { AlgorithmInfo } from '@/data/algorithm-info';
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
 
 interface AlgorithmDetailPageProps {
   algorithm: AlgorithmInfo;
@@ -98,9 +100,9 @@ export const AlgorithmDetailPage: React.FC<AlgorithmDetailPageProps> = ({
                               <Calculator className="h-4 w-4" />
                               <span className="text-sm font-medium">Formula</span>
                             </div>
-                            <code className="text-sm font-mono">
-                              {subsection.formula}
-                            </code>
+                            <div className="flex justify-center">
+                              <BlockMath math={subsection.formula} />
+                            </div>
                           </div>
                         )}
                         

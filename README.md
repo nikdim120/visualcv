@@ -1,5 +1,5 @@
 # Computer Vision Lab
-
+Istraživačkova laboratorija
 Interaktivna platforma za učenje algoritama kompjuterskog vida koristeći React, OpenCV.js i shadcn/ui komponente.
 
 ## 🎯 Funkcionalnosti
