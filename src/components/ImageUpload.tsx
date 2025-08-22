@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Camera, Image as ImageIcon } from 'lucide-react';
-import { sampleImages } from '@/data/sample-images';
+import { sampleImages, fallbackImages } from '@/data/sample-images';
 import type { ImageData } from '@/types/cv';
 
 interface ImageUploadProps {
@@ -61,17 +61,33 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
 
   const handleSampleImage = useCallback((sampleImage: ImageData) => {
     setIsLoading(true);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      onImageSelect(img);
-      setIsLoading(false);
+    
+    const tryLoadImage = (url: string, isFallback = false) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        onImageSelect(img);
+        setIsLoading(false);
+      };
+      
+      img.onerror = () => {
+        console.error(`Failed to load image: ${sampleImage.name} from ${url}`);
+        
+        // Pokušaj fallback URL ako postoji i nije već pokušan
+        if (!isFallback && fallbackImages[sampleImage.id]) {
+          console.log(`Trying fallback URL for ${sampleImage.name}`);
+          tryLoadImage(fallbackImages[sampleImage.id], true);
+        } else {
+          alert(`Greška pri učitavanju slike: ${sampleImage.name}. Molimo pokušajte sa drugom slikom ili upload-ujte svoju.`);
+          setIsLoading(false);
+        }
+      };
+      
+      img.src = url;
     };
-    img.onerror = () => {
-      alert('Greška pri učitavanju slike.');
-      setIsLoading(false);
-    };
-    img.src = sampleImage.url;
+    
+    tryLoadImage(sampleImage.url);
   }, [onImageSelect]);
 
   const handleCameraCapture = useCallback(() => {
@@ -145,19 +161,19 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             {sampleImages.map((sampleImage) => (
               <Button
                 key={sampleImage.id}
                 variant="outline"
                 onClick={() => handleSampleImage(sampleImage)}
                 disabled={isLoading}
-                className="h-20 flex-col gap-2"
+                className="h-16 flex-col gap-1"
               >
                 <img
                   src={sampleImage.thumbnail}
                   alt={sampleImage.name}
-                  className="h-8 w-8 object-cover rounded"
+                  className="h-6 w-6 object-cover rounded"
                 />
                 <span className="text-xs">{sampleImage.name}</span>
               </Button>

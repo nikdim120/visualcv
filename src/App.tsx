@@ -78,14 +78,10 @@ function App() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Sidebar - Image Upload */}
-          <div className="lg:col-span-1">
+        <div className="space-y-8">
+          {/* Top Section - Image Upload + Display (100% width) */}
+          <div className="space-y-8">
             <ImageUpload onImageSelect={handleImageSelect} />
-          </div>
-
-          {/* Center - Image Display */}
-          <div className="lg:col-span-1">
             <ImageDisplay
               originalImage={originalImage}
               processingResult={processingResult}
@@ -93,8 +89,8 @@ function App() {
             />
           </div>
 
-          {/* Right Sidebar - Algorithm Panel */}
-          <div className="lg:col-span-1">
+          {/* Bottom Section - Algorithm Panel (100% width, centered) */}
+          <div className="max-w-4xl mx-auto">
             <AlgorithmPanel
               onAlgorithmSelect={handleAlgorithmSelect}
               onApplyAlgorithm={handleApplyAlgorithm}
