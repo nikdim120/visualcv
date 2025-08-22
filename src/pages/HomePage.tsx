@@ -21,19 +21,29 @@ export const HomePage: React.FC = () => {
     setSelectedAlgorithm(algorithm);
   }, []);
 
-  const handleApplyAlgorithm = useCallback(async (algorithm: Algorithm, parameters: Record<string, any>) => {
-    if (!originalImage) return;
+  const handleApplyAlgorithm = useCallback(async (algorithmId: string, parameters: Record<string, number | string>) => {
+    if (!originalImage || !selectedAlgorithm) return;
 
     setIsProcessing(true);
     try {
-      const result = await applyAlgorithm(originalImage, algorithm.id, parameters);
-      setProcessingResult(result);
+      const result = await applyAlgorithm(originalImage, algorithmId, parameters);
+      
+      // Kreiraj kompletan ProcessingResult objekat
+      const processingResult: ProcessingResult = {
+        originalImage: originalImage.src,
+        processedImage: result.result,
+        processingTime: result.processingTime,
+        algorithm: selectedAlgorithm,
+        parameters: parameters
+      };
+      
+      setProcessingResult(processingResult);
     } catch (error) {
       console.error('Error applying algorithm:', error);
     } finally {
       setIsProcessing(false);
     }
-  }, [originalImage]);
+  }, [originalImage, selectedAlgorithm]);
 
   return (
     <div className="space-y-8">
