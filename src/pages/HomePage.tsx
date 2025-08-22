@@ -2,7 +2,7 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { AlgorithmPanel } from '@/components/AlgorithmPanel';
 import { ImageDisplay } from '@/components/ImageDisplay';
 import { algorithms } from '@/data/algorithms';
-import { applyAlgorithm } from '@/lib/opencv';
+import { applyAlgorithm, clearOpenCVMemory } from '@/lib/opencv';
 import type { Algorithm, ProcessingResult } from '@/types/cv';
 import { useState, useCallback } from 'react';
 
@@ -38,8 +38,16 @@ export const HomePage: React.FC = () => {
       };
       
       setProcessingResult(processingResult);
+      
+      // Automatsko čišćenje memorije nakon uspešne operacije
+      setTimeout(() => {
+        clearOpenCVMemory();
+      }, 1000);
+      
     } catch (error) {
       console.error('Error applying algorithm:', error);
+      // Čišćenje memorije i u slučaju greške
+      clearOpenCVMemory();
     } finally {
       setIsProcessing(false);
     }

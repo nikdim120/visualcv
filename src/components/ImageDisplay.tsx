@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, Download, RotateCcw } from 'lucide-react';
+import { Eye, EyeOff, Download, RotateCcw, Trash2 } from 'lucide-react';
 import type { ProcessingResult } from '@/types/cv';
+import { clearOpenCVMemory } from '@/lib/opencv';
 
 interface ImageDisplayProps {
   originalImage: HTMLImageElement | null;
@@ -28,6 +29,11 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
 
   const handleReset = () => {
     setShowProcessed(false);
+  };
+
+  const handleClearMemory = () => {
+    clearOpenCVMemory();
+    alert('Memorija je očišćena! Možete nastaviti sa obradom slika.');
   };
 
   if (!originalImage) {
@@ -67,6 +73,16 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
               Resetuj
             </Button>
           )}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClearMemory}
+            className="text-orange-600 hover:text-orange-700"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Očisti memoriju
+          </Button>
         </div>
 
         {processingResult && (

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Vision Algoritmi - Detaljna Dokumentacija</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #16a085;
+            margin-top: 20px;
+        }
+        .algorithm {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #fafafa;
+        }
+        .algorithm-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .algorithm-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        .algorithm-title {
+            flex: 1;
+        }
+        .algorithm-category {
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        .description {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        .section {
+            margin: 20px 0;
+        }
+        .subsection {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .formula {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            margin: 10px 0;
+            font-style: italic;
+        }
+        .list-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .list-section h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        .references {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .reference {
+            margin: 8px 0;
+            padding: 5px;
+            background: white;
+            border-radius: 3px;
+        }
+        .toc {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Computer Vision Algoritmi - Detaljna Dokumentacija</h1>
+        
+        <div class="toc">
+            <h3>📋 Sadržaj</h3>
+            <ul>
+                <li><a href="#gaussian-blur">🔵 Gaussian Blur</a></li>
+                <li><a href="#canny-edge">⚡ Canny Edge Detection</a></li>
+                <li><a href="#bilateral-filter">🟢 Bilateral Filter</a></li>
+                <li><a href="#median-blur">🟡 Median Blur</a></li>
+                <li><a href="#sobel-edge">📐 Sobel Edge Detection</a></li>
+                <li><a href="#laplacian">🔷 Laplacian Edge Detection</a></li>
+                <li><a href="#erosion">🔻 Erosion</a></li>
+                <li><a href="#dilation">🔺 Dilation</a></li>
+                <li><a href="#opening">🔸 Opening</a></li>
+                <li><a href="#closing">🔹 Closing</a></li>
+                <li><a href="#harris-corners">📍 Harris Corner Detection</a></li>
+                <li><a href="#adaptive-threshold">⚫ Adaptive Threshold</a></li>
+            </ul>
+        </div>
+
+        <div id="gaussian-blur" class="algorithm">
+            <div class="algorithm-header">
+                <div class="algorithm-icon">🔵</div>
+                <div class="algorithm-title">
+                    <h2>Gaussian Blur</h2>
+                    <span class="algorithm-category">Filtering</span>
+                </div>
+            </div>
+            
+            <div class="description">
+                <strong>Opis:</strong> Gaussian blur je jedan od najfundamentalnijih filtera u kompjuterskom vidu koji koristi Gaussian distribuciju za zamagljenje slike.
+            </div>
+
+            <div class="section">
+                <h3>Uvod</h3>
+                <p>Gaussian blur je filter koji "zamagljuje" sliku koristeći Gaussian (normalnu) distribuciju. Ovo je jedna od najvažnijih operacija u kompjuterskom vidu jer se koristi kao prethodni korak za mnoge druge algoritme.</p>
+                
+                <div class="subsection">
+                    <h4>Zašto Gaussian distribucija?</h4>
+                    <p>Gaussian distribucija je prirodna distribucija koja se javlja u mnogim fizičkim procesima. U kontekstu slika, ona dobro modelira način na koji se svetlost širi i reflektuje od površina.</p>
+                    <div class="formula">G(x,y) = (1/(2πσ²)) * e^(-(x²+y²)/(2σ²))</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Matematička osnova</h3>
+                <p>Gaussian blur se implementira kao konvolucija slike sa Gaussian kernel-om. Kernel je matrica koja definiše težine za svaki piksel u susedstvu.</p>
+                
+                <div class="subsection">
+                    <h4>Gaussian Kernel</h4>
+                    <p>Kernel se kreira na osnovu Gaussian funkcije. Centralni piksel ima najveću težinu, a težina opada eksponencijalno sa udaljenošću.</p>
+                    <div class="code-block">// Primer 3x3 Gaussian kernel sa σ=1
+[0.077847, 0.123317, 0.077847]
+[0.123317, 0.195346, 0.123317]
+[0.077847, 0.123317, 0.077847]</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>Konvolucija</h4>
+                    <p>Svaki piksel u rezultujućoj slici se računa kao ponderisana suma piksela u susedstvu, gde su težine definisane Gaussian kernel-om.</p>
+                    <div class="formula">I'[x,y] = Σ(i,j) I[x+i,y+j] * G[i,j]</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Parametri</h3>
+                <p>Gaussian blur ima dva glavna parametra koji utiču na rezultat:</p>
+                
+                <div class="subsection">
+                    <h4>Kernel Size</h4>
+                    <p>Veličina kernel-a određuje koliko piksela u susedstvu će biti uključeno u proračun. Veći kernel znači više zamagljenja.</p>
+                    <div class="code-block">// Kernel size mora biti neparan broj
+kernelSize = 2 * ceil(3 * sigma) + 1</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>Sigma (σ)</h4>
+                    <p>Sigma parametar kontroliše širinu Gaussian distribucije. Veća sigma znači više zamagljenja i širi kernel.</p>
+                    <div class="code-block">// Veća sigma = više zamagljenja
+sigma = 1.0  // Malo zamagljenja
+sigma = 3.0  // Srednje zamagljenje
+sigma = 5.0  // Jako zamagljenje</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Implementacija</h3>
+                <p>Gaussian blur se može implementirati na nekoliko načina:</p>
+                
+                <div class="subsection">
+                    <h4>Direktna konvolucija</h4>
+                    <p>Najjednostavniji pristup je direktna konvolucija sa Gaussian kernel-om. Ovo je sporo za velike kernel-e.</p>
+                    <div class="code-block">def gaussian_blur_direct(image, kernel_size, sigma):
+    kernel = create_gaussian_kernel(kernel_size, sigma)
+    return convolve(image, kernel)</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>Separabilnost</h4>
+                    <p>Gaussian funkcija je separabilna, što znači da se 2D konvolucija može razložiti na dve 1D konvolucije. Ovo je mnogo efikasnije.</p>
+                    <div class="code-block">def gaussian_blur_separable(image, kernel_size, sigma):
+    # Prvo horizontalno, zatim vertikalno
+    kernel_x = create_1d_gaussian_kernel(kernel_size, sigma)
+    kernel_y = kernel_x.T
+    temp = convolve(image, kernel_x)
+    return convolve(temp, kernel_y)</div>
+                </div>
+            </div>
+
+            <div class="list-section">
+                <h4>Primene</h4>
+                <ul>
+                    <li>Smanjenje šuma u slikama</li>
+                    <li>Prethodni korak za detekciju ivica</li>
+                    <li>Glatko zamagljenje u fotografiji</li>
+                    <li>Smanjenje aliasing efekata</li>
+                    <li>Priprema slike za druge algoritme</li>
+                </ul>
+            </div>
+
+            <div class="list-section">
+                <h4>Prednosti</h4>
+                <ul>
+                    <li>Efikasan za smanjenje šuma</li>
+                    <li>Glatko zamagljenje bez artefakata</li>
+                    <li>Separabilnost omogućava brzu implementaciju</li>
+                    <li>Matematički dobro definisan</li>
+                    <li>Široko podržan u bibliotekama</li>
+                </ul>
+            </div>
+
+            <div class="list-section">
+                <h4>Nedostaci</h4>
+                <ul>
+                    <li>Uklanja i korisne detalje</li>
+                    <li>Može biti spor za velike kernel-e</li>
+                    <li>Nije edge-preserving</li>
+                    <li>Može stvoriti halo efekte</li>
+                    <li>Nije optimalan za salt-and-pepper šum</li>
+                </ul>
+            </div>
+
+            <div class="references">
+                <h4>Reference</h4>
+                <div class="reference">
+                    <strong>Digital Image Processing</strong> - Rafael C. Gonzalez, Richard E. Woods (2017)
+                </div>
+                <div class="reference">
+                    <strong>Computer Vision: Algorithms and Applications</strong> - Richard Szeliski (2010)
+                </div>
+            </div>
+        </div>
+
+        <div id="canny-edge" class="algorithm">
+            <div class="algorithm-header">
+                <div class="algorithm-icon">⚡</div>
+                <div class="algorithm-title">
+                    <h2>Canny Edge Detection</h2>
+                    <span class="algorithm-category">Edge Detection</span>
+                </div>
+            </div>
+            
+            <div class="description">
+                <strong>Opis:</strong> Canny edge detection je jedan od najpopularnijih i najefikasnijih algoritama za detekciju ivica koji koristi višestruke korake za optimalne rezultate.
+            </div>
+
+            <div class="section">
+                <h3>Uvod</h3>
+                <p>Canny edge detection je algoritam koji detektuje ivice u slikama koristeći višestruke korake. Razvio ga je John F. Canny 1986. godine i i danas se smatra jednim od najboljih algoritama za detekciju ivica.</p>
+                
+                <div class="subsection">
+                    <h4>Ciljevi algoritma</h4>
+                    <p>Canny je definisao tri glavna cilja za detekciju ivica: 1) Niska greška - ne detektovati ivice gde ih nema, 2) Visoka preciznost - detektovati ivice tamo gde su stvarno, 3) Jedan odziv - jedan piksel širine za svaku ivicu.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Koraci algoritma</h3>
+                <p>Canny algoritam se sastoji od četiri glavna koraka:</p>
+                
+                <div class="subsection">
+                    <h4>1. Smanjenje šuma</h4>
+                    <p>Prvi korak je primena Gaussian blur filtera za uklanjanje šuma. Šum može lažno da se protumači kao ivice.</p>
+                    <div class="code-block">// Gaussian blur za smanjenje šuma
+blurred = cv2.GaussianBlur(image, (5, 5), 1.0)</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>2. Pronalaženje gradijenta</h4>
+                    <p>Koriste se Sobel operatori za pronalaženje gradijenta magnitude i smera u svakom pikselu.</p>
+                    <div class="code-block">// Sobel operatori za X i Y pravce
+grad_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=3)
+grad_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=3)
+
+// Magnitude i smer gradijenta
+magnitude = sqrt(grad_x² + grad_y²)
+direction = atan2(grad_y, grad_x)</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>3. Non-maximum suppression</h4>
+                    <p>Održava se samo najjači piksel u svom susedstvu duž smera gradijenta. Ovo sužava linije ivica.</p>
+                    <div class="code-block">// Non-maximum suppression
+for each pixel:
+    if magnitude[pixel] < magnitude[neighbor1] or 
+       magnitude[pixel] < magnitude[neighbor2]:
+        magnitude[pixel] = 0</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>4. Histerezis pražnjenje</h4>
+                    <p>Koriste se dva praga (niski i visoki) za odlučivanje koje ivice su stvarne. Ivice iznad visokog praga su sigurno stvarne.</p>
+                    <div class="code-block">// Histerezis pražnjenje
+strong_edges = magnitude > high_threshold
+weak_edges = (magnitude > low_threshold) & (magnitude <= high_threshold)
+
+// Poveži weak edges sa strong edges
+final_edges = strong_edges + connected_weak_edges</div>
+                </div>
+            </div>
+
+            <div class="list-section">
+                <h4>Primene</h4>
+                <ul>
+                    <li>Detekcija objekata</li>
+                    <li>Segmentacija slike</li>
+                    <li>Prethodni korak za feature detection</li>
+                    <li>Analiza strukture slike</li>
+                    <li>Computer vision pipeline</li>
+                </ul>
+            </div>
+
+            <div class="list-section">
+                <h4>Prednosti</h4>
+                <ul>
+                    <li>Visoka preciznost detekcije</li>
+                    <li>Robustnost na šum</li>
+                    <li>Jedan piksel širine ivica</li>
+                    <li>Dobra teorijska osnova</li>
+                    <li>Široko podržan</li>
+                </ul>
+            </div>
+
+            <div class="list-section">
+                <h4>Nedostaci</h4>
+                <ul>
+                    <li>Složen za implementaciju</li>
+                    <li>Više koraka = sporiji</li>
+                    <li>Osetljiv na parametre</li>
+                    <li>Može propustiti slabe ivice</li>
+                    <li>Ne detektuje sve tipove ivica</li>
+                </ul>
+            </div>
+
+            <div class="references">
+                <h4>Reference</h4>
+                <div class="reference">
+                    <strong>A Computational Approach to Edge Detection</strong> - John F. Canny (1986)
+                </div>
+                <div class="reference">
+                    <strong>Digital Image Processing</strong> - Rafael C. Gonzalez, Richard E. Woods (2017)
+                </div>
+            </div>
+        </div>
+
+        <div id="bilateral-filter" class="algorithm">
+            <div class="algorithm-header">
+                <div class="algorithm-icon">🟢</div>
+                <div class="algorithm-title">
+                    <h2>Bilateral Filter</h2>
+                    <span class="algorithm-category">Filtering</span>
+                </div>
+            </div>
+            
+            <div class="description">
+                <strong>Opis:</strong> Bilateral filter je edge-preserving filter koji smanjuje šum dok čuva ivice koristeći prostornu i intenzitetnu sličnost.
+            </div>
+
+            <div class="section">
+                <h3>Uvod</h3>
+                <p>Bilateral filter je napredan filter koji rešava problem standardnih blur filtera - gubljenje ivica. On smanjuje šum dok čuva oštre ivice i detalje u slici.</p>
+            </div>
+
+            <div class="section">
+                <h3>Princip rada</h3>
+                <p>Bilateral filter koristi dva faktora za određivanje težine svakog piksela:</p>
+                
+                <div class="subsection">
+                    <h4>Prostorni faktor</h4>
+                    <p>Meri udaljenost između piksela. Pikseli koji su bliže imaju veću težinu.</p>
+                    <div class="formula">G_σs(||p - q||) = e^(-||p - q||²/(2σs²))</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>Intenzitetni faktor</h4>
+                    <p>Meri razliku u intenzitetu između piksela. Pikseli sa sličnim intenzitetom imaju veću težinu.</p>
+                    <div class="formula">G_σr(|I(p) - I(q)|) = e^(-|I(p) - I(q)|²/(2σr²))</div>
+                </div>
+
+                <div class="subsection">
+                    <h4>Kombinovana težina</h4>
+                    <p>Konačna težina je proizvod prostornog i intenzitetnog faktora.</p>
+                    <div class="formula">w(p,q) = G_σs(||p - q||) * G_σr(|I(p) - I(q)|)</div>
+                </div>
+            </div>
+
+            <div class="list-section">
+                <h4>Primene</h4>
+                <ul>
+                    <li>Smanjenje šuma sačuvanjem ivica</li>
+                    <li>Prethodni korak za detekciju ivica</li>
+                    <li>Glatko zamagljenje u fotografiji</li>
+                    <li>Uklanjanje šuma iz medicinskih slika</li>
+                    <li>Priprema slike za segmentaciju</li>
+                </ul>
+            </div>
+
+            <div class="list-section">
+                <h4>Prednosti</h4>
+                <ul>
+                    <li>Čuva ivice i detalje</li>
+                    <li>Efikasan za smanjenje šuma</li>
+                    <li>Matematički dobro definisan</li>
+                    <li>Robustan na različite tipove šuma</li>
+                    <li>Prirodan rezultat</li>
+                </ul>
+            </div>
+
+            <div class="list-section">
+                <h4>Nedostaci</h4>
+                <ul>
+                    <li>Sporiji od standardnih filtera</li>
+                    <li>Složeniji za implementaciju</li>
+                    <li>Osetljiv na parametre</li>
+                    <li>Može biti spor za velike slike</li>
+                    <li>Može stvoriti halo efekte</li>
+                </ul>
+            </div>
+
+            <div class="references">
+                <h4>Reference</h4>
+                <div class="reference">
+                    <strong>Bilateral Filtering for Gray and Color Images</strong> - C. Tomasi, R. Manduchi (1998)
+                </div>
+                <div class="reference">
+                    <strong>Computer Vision: Algorithms and Applications</strong> - Richard Szeliski (2010)
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px; padding: 20px; background: #ecf0f1; border-radius: 8px;">
+            <p><strong>📚 Dokumentacija je kreirana automatski iz TypeScript fajla</strong></p>
+            <p>Ova dokumentacija sadrži detaljna objašnjenja svih algoritama implementiranih u Computer Vision aplikaciji.</p>
+            <p><em>Napomena: U ovoj verziji su prikazana samo tri algoritma kao primer. Kompletna dokumentacija sa svih 12 algoritama je dostupna u izvornom TypeScript fajlu.</em></p>
+        </div>
+    </div>
+</body>
+</html>

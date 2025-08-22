@@ -43,7 +43,34 @@ export const imageToMat = (imageElement: HTMLImageElement): any => {
 export const matToImage = (mat: any): string => {
   const canvas = document.createElement('canvas');
   window.cv.imshow(canvas, mat);
-  return canvas.toDataURL();
+  const dataUrl = canvas.toDataURL();
+  
+  // Eksplicitno oslobodi canvas memoriju
+  canvas.width = 0;
+  canvas.height = 0;
+  
+  return dataUrl;
+};
+
+// Funkcija za čišćenje OpenCV memorije
+export const clearOpenCVMemory = (): void => {
+  if (window.cv && window.cv.Mat) {
+    try {
+      // Pokušaj da forsiraš garbage collection
+      if (window.gc) {
+        window.gc();
+      }
+      
+      // Pokušaj da očistiš OpenCV memoriju
+      if (window.cv.cleanup) {
+        window.cv.cleanup();
+      }
+      
+      console.log('OpenCV memory cleared');
+    } catch (error) {
+      console.warn('Could not clear OpenCV memory:', error);
+    }
+  }
 };
 
 export const applyAlgorithm = async (
@@ -56,6 +83,14 @@ export const applyAlgorithm = async (
   const startTime = performance.now();
   const src = imageToMat(imageElement);
   let dst: any;
+  
+  // Debug informacije
+  console.log(`Algorithm: ${algorithmId}`);
+  console.log(`Image channels: ${src.channels()}, size: ${src.rows}x${src.cols}`);
+  console.log(`Parameters:`, parameters);
+  
+  // Lista za praćenje privremenih Mat objekata
+  const tempMats: any[] = [];
   
   try {
     switch (algorithmId) {
@@ -77,14 +112,51 @@ export const applyAlgorithm = async (
         const d = parameters.d as number;
         const sigmaColor = parameters.sigmaColor as number;
         const sigmaSpace = parameters.sigmaSpace as number;
-        window.cv.bilateralFilter(src, dst, d, sigmaColor, sigmaSpace);
+        
+        // Konvertuj u BGR format ako je potrebno (OpenCV bilateralFilter radi bolje sa BGR)
+        let bgrSrc = src;
+        if (src.channels() === 4) { // RGBA
+          bgrSrc = new window.cv.Mat();
+          window.cv.cvtColor(src, bgrSrc, window.cv.COLOR_RGBA2BGR);
+        } else if (src.channels() === 3) { // RGB
+          bgrSrc = new window.cv.Mat();
+          window.cv.cvtColor(src, bgrSrc, window.cv.COLOR_RGB2BGR);
+        }
+        
+        // Primeni bilateral filter
+        window.cv.bilateralFilter(bgrSrc, dst, d, sigmaColor, sigmaSpace);
+        
+        // Konvertuj nazad u RGB ako je potrebno
+        if (bgrSrc !== src) {
+          console.log('Converting back to RGB format...');
+          const rgbResult = new window.cv.Mat();
+          window.cv.cvtColor(dst, rgbResult, window.cv.COLOR_BGR2RGB);
+          dst.delete();
+          dst = rgbResult;
+          bgrSrc.delete();
+          console.log('Bilateral filter completed successfully');
+        } else {
+          console.log('Bilateral filter completed (no conversion needed)');
+        }
         break;
         
       case 'canny-edge':
         dst = new window.cv.Mat();
         const threshold1 = parameters.threshold1 as number;
         const threshold2 = parameters.threshold2 as number;
-        window.cv.Canny(src, dst, threshold1, threshold2);
+        
+        // Konvertuj u grayscale ako je potrebno
+        let graySrcCanny = src;
+        if (src.channels() > 1) {
+          graySrcCanny = new window.cv.Mat();
+          window.cv.cvtColor(src, graySrcCanny, window.cv.COLOR_RGBA2GRAY);
+        }
+        
+        // Primeni Canny edge detection
+        window.cv.Canny(graySrcCanny, dst, threshold1, threshold2);
+        
+        // Clean up
+        if (graySrcCanny !== src) graySrcCanny.delete();
         break;
         
       case 'sobel-edge':
@@ -92,13 +164,55 @@ export const applyAlgorithm = async (
         const dx = parameters.dx as number;
         const dy = parameters.dy as number;
         const sobelKsize = parseInt(parameters.ksize as string);
-        window.cv.Sobel(src, dst, window.cv.CV_8U, dx, dy, sobelKsize);
+        
+        // Konvertuj u grayscale ako je potrebno
+        let graySrc = src;
+        if (src.channels() > 1) {
+          graySrc = new window.cv.Mat();
+          window.cv.cvtColor(src, graySrc, window.cv.COLOR_RGBA2GRAY);
+        }
+        
+        // Primeni Sobel operator
+        const gradX = new window.cv.Mat();
+        const gradY = new window.cv.Mat();
+        window.cv.Sobel(graySrc, gradX, window.cv.CV_64F, dx, 0, sobelKsize);
+        window.cv.Sobel(graySrc, gradY, window.cv.CV_64F, 0, dy, sobelKsize);
+        
+        // Izračunaj magnitude
+        const magnitude = new window.cv.Mat();
+        window.cv.magnitude(gradX, gradY, magnitude);
+        
+        // Konvertuj u 8-bit format
+        window.cv.convertScaleAbs(magnitude, dst);
+        
+        // Clean up
+        if (graySrc !== src) graySrc.delete();
+        gradX.delete();
+        gradY.delete();
+        magnitude.delete();
         break;
         
       case 'laplacian':
         dst = new window.cv.Mat();
         const laplacianKsize = parseInt(parameters.ksize as string);
-        window.cv.Laplacian(src, dst, window.cv.CV_8U, laplacianKsize);
+        
+        // Konvertuj u grayscale ako je potrebno
+        let graySrcLaplacian = src;
+        if (src.channels() > 1) {
+          graySrcLaplacian = new window.cv.Mat();
+          window.cv.cvtColor(src, graySrcLaplacian, window.cv.COLOR_RGBA2GRAY);
+        }
+        
+        // Primeni Laplacian operator
+        const laplacianTemp = new window.cv.Mat();
+        window.cv.Laplacian(graySrcLaplacian, laplacianTemp, window.cv.CV_64F, laplacianKsize);
+        
+        // Konvertuj u apsolutne vrednosti i zatim u 8-bit format
+        window.cv.convertScaleAbs(laplacianTemp, dst);
+        
+        // Clean up
+        if (graySrcLaplacian !== src) graySrcLaplacian.delete();
+        laplacianTemp.delete();
         break;
         
       case 'erosion':
@@ -136,7 +250,24 @@ export const applyAlgorithm = async (
         const blockSize = parameters.blockSize as number;
         const harrisKsize = parameters.ksize as number;
         const k = parameters.k as number;
-        window.cv.cornerHarris(src, dst, blockSize, harrisKsize, k);
+        
+        // Konvertuj u grayscale ako je potrebno
+        let graySrcHarris = src;
+        if (src.channels() > 1) {
+          graySrcHarris = new window.cv.Mat();
+          window.cv.cvtColor(src, graySrcHarris, window.cv.COLOR_RGBA2GRAY);
+        }
+        
+        // Primeni Harris corner detection
+        const harrisTemp = new window.cv.Mat();
+        window.cv.cornerHarris(graySrcHarris, harrisTemp, blockSize, harrisKsize, k);
+        
+        // Normalizuj rezultat
+        window.cv.normalize(harrisTemp, dst, 0, 255, window.cv.NORM_MINMAX, window.cv.CV_8U);
+        
+        // Clean up
+        if (graySrcHarris !== src) graySrcHarris.delete();
+        harrisTemp.delete();
         break;
         
       case 'adaptive-threshold':
@@ -145,7 +276,19 @@ export const applyAlgorithm = async (
         const c = parameters.c as number;
         const method = parameters.method as string;
         const adaptiveMethod = method === 'ADAPTIVE_THRESH_GAUSSIAN_C' ? window.cv.ADAPTIVE_THRESH_GAUSSIAN_C : window.cv.ADAPTIVE_THRESH_MEAN_C;
-        window.cv.adaptiveThreshold(src, dst, 255, adaptiveMethod, window.cv.THRESH_BINARY, adaptiveBlockSize, c);
+        
+        // Konvertuj u grayscale ako je potrebno
+        let graySrcAdaptive = src;
+        if (src.channels() > 1) {
+          graySrcAdaptive = new window.cv.Mat();
+          window.cv.cvtColor(src, graySrcAdaptive, window.cv.COLOR_RGBA2GRAY);
+        }
+        
+        // Primeni adaptive threshold
+        window.cv.adaptiveThreshold(graySrcAdaptive, dst, 255, adaptiveMethod, window.cv.THRESH_BINARY, adaptiveBlockSize, c);
+        
+        // Clean up
+        if (graySrcAdaptive !== src) graySrcAdaptive.delete();
         break;
         
       default:
@@ -153,17 +296,43 @@ export const applyAlgorithm = async (
     }
     
     const processingTime = performance.now() - startTime;
-    const result = matToImage(dst);
+    console.log(`Processing completed in ${processingTime.toFixed(2)}ms`);
+    console.log(`Result channels: ${dst.channels()}, size: ${dst.rows}x${dst.cols}`);
     
-    // Clean up
-    src.delete();
-    dst.delete();
+    const result = matToImage(dst);
+    console.log(`Image conversion completed, result length: ${result.length}`);
+    
+    // Clean up sve privremene Mat objekte
+    tempMats.forEach(mat => {
+      if (mat && !mat.isDeleted()) {
+        mat.delete();
+      }
+    });
+    
+    // Clean up glavne objekte
+    if (src && !src.isDeleted()) src.delete();
+    if (dst && !dst.isDeleted()) dst.delete();
+    
+    // Forsiraj garbage collection ako je moguće
+    if (window.gc) {
+      window.gc();
+    }
     
     return { result, processingTime };
   } catch (error) {
-    // Clean up on error
-    if (src) src.delete();
-    if (dst) dst.delete();
+    console.error('Error in algorithm processing:', error);
+    
+    // Clean up sve privremene Mat objekte na grešku
+    tempMats.forEach(mat => {
+      if (mat && !mat.isDeleted()) {
+        mat.delete();
+      }
+    });
+    
+    // Clean up glavne objekte na grešku
+    if (src && !src.isDeleted()) src.delete();
+    if (dst && !dst.isDeleted()) dst.delete();
+    
     throw error;
   }
 };
