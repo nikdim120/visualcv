@@ -130,33 +130,33 @@ export const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({
   }, {} as Record<string, Algorithm[]>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Algoritmi</CardTitle>
-          <CardDescription>
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-lg sm:text-xl">Algoritmi</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Odaberite algoritam za obradu slike
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
           {Object.entries(groupedAlgorithms).map(([category, categoryAlgorithms]) => (
             <div key={category} className="space-y-2">
               <h3 className="text-sm font-semibold text-muted-foreground">
                 {getCategoryName(category)}
               </h3>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:gap-3">
                 {categoryAlgorithms.map((algorithm) => (
                   <Button
                     key={algorithm.id}
                     variant={selectedAlgorithm?.id === algorithm.id ? "default" : "outline"}
                     onClick={() => handleAlgorithmSelect(algorithm)}
-                    className="justify-start h-auto p-3"
+                    className="justify-start h-auto p-3 sm:p-4 text-left"
                     disabled={isProcessing}
                   >
-                    <span className="text-lg mr-2">{algorithm.icon}</span>
-                    <div className="text-left">
-                      <div className="font-medium">{algorithm.name}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1">
+                    <span className="text-lg sm:text-xl mr-2 sm:mr-3">{algorithm.icon}</span>
+                    <div className="text-left flex-1">
+                      <div className="font-medium text-sm sm:text-base">{algorithm.name}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
                         {algorithm.description}
                       </div>
                     </div>
@@ -170,17 +170,17 @@ export const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({
 
       {selectedAlgorithm && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span className="text-lg">{selectedAlgorithm.icon}</span>
+          <CardHeader className="px-4 sm:px-6">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <span className="text-lg sm:text-xl">{selectedAlgorithm.icon}</span>
               {selectedAlgorithm.name}
             </CardTitle>
-            <CardDescription className="flex items-start gap-2">
+            <CardDescription className="flex items-start gap-2 text-sm sm:text-base">
               <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
               {selectedAlgorithm.description}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-4 sm:px-6">
             <div className="space-y-4">
               {selectedAlgorithm.parameters.map(renderParameterControl)}
             </div>

@@ -51,8 +51,8 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <Button
             variant="outline"
             size="sm"
@@ -86,13 +86,13 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
         </div>
 
         {processingResult && (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-right">
             Vreme obrade: {processingResult.processingTime.toFixed(2)}ms
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
         {/* Original Image */}
         <Card>
           <CardHeader>
@@ -103,11 +103,11 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
           </CardHeader>
           <CardContent>
             <div className="relative">
-              <img
-                src={originalImage.src}
-                alt="Original"
-                className="w-full h-auto max-h-96 object-contain rounded-lg border"
-              />
+                             <img
+                 src={originalImage.src}
+                 alt="Original"
+                 className="w-full h-auto max-h-64 sm:max-h-96 object-contain rounded-lg border"
+               />
               <Button
                 variant="outline"
                 size="sm"
@@ -151,11 +151,11 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
             <div className="relative">
               {processingResult && showProcessed ? (
                 <>
-                  <img
-                    src={processingResult.processedImage}
-                    alt="Processed"
-                    className="w-full h-auto max-h-96 object-contain rounded-lg border"
-                  />
+                                     <img
+                     src={processingResult.processedImage}
+                     alt="Processed"
+                     className="w-full h-auto max-h-64 sm:max-h-96 object-contain rounded-lg border"
+                   />
                   <Button
                     variant="outline"
                     size="sm"
@@ -166,7 +166,7 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
                   </Button>
                 </>
               ) : (
-                <div className="w-full h-96 bg-muted rounded-lg border flex items-center justify-center">
+                                 <div className="w-full h-64 sm:h-96 bg-muted rounded-lg border flex items-center justify-center">
                   {isProcessing ? (
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>

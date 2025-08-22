@@ -54,9 +54,9 @@ export const HomePage: React.FC = () => {
   }, [originalImage, selectedAlgorithm]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Top Section - Image Upload + Display (100% width) */}
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         <ImageUpload onImageSelect={handleImageSelect} />
         <ImageDisplay
           originalImage={originalImage}
@@ -66,7 +66,7 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* Bottom Section - Algorithm Panel (100% width, centered) */}
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
         <AlgorithmPanel
           onAlgorithmSelect={handleAlgorithmSelect}
           onApplyAlgorithm={handleApplyAlgorithm}

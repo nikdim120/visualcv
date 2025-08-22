@@ -96,7 +96,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -161,14 +161,14 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
             {sampleImages.map((sampleImage) => (
               <Button
                 key={sampleImage.id}
                 variant="outline"
                 onClick={() => handleSampleImage(sampleImage)}
                 disabled={isLoading}
-                className="h-16 flex-col gap-1"
+                className="h-14 sm:h-16 flex-col gap-1"
               >
                 <img
                   src={sampleImage.thumbnail}
